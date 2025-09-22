@@ -15,6 +15,7 @@ extension WidgetExt on Widget {
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius,
+        splashFactory: InkSplash.splashFactory,
         child: Ink(
           padding: padding,
           decoration:

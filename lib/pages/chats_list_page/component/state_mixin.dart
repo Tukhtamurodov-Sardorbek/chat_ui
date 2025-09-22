@@ -5,54 +5,66 @@ mixin _StateHelper on State<ChatsListPage> {
   UserData? _data;
   int _newMessagedUsersCount = 0;
   late final UserData _thisUser;
-  late final List<UserData> _mockUsers;
-  late final List<ChatData> _mockChats;
+  late final ValueNotifier<List<UserData>> _mockUsers;
+  late final ValueNotifier<List<ChatData>> _mockChats;
   late final TabController _tabController;
+
+  UserData get thisUser => _thisUser;
+
+  ValueNotifier<List<UserData>> get mockUsers => _mockUsers;
+
+  ValueNotifier<List<ChatData>> get mockChats => _mockChats;
 
   void _initMockData() {
     _thisUser = UserData(
       id: 1000,
       name: 'Sam',
       positionTitle: 'Student',
-      isOnline: true,
-      profileImage: "assets/images/mock_user_thumbnail.png",
+      status: UserStatus.online(),
+      profileImage: AppAssets.mockUserThumbnail,
     );
-    _mockChats = <ChatData>[];
-    _mockUsers = [
+    _mockChats = ValueNotifier(const <ChatData>[]);
+    _mockUsers = ValueNotifier(<UserData>[
       _constructMockUser(),
       _constructMockUser(
         name: 'Mirshakar',
         positionTitle: 'Teacher',
-        isOnline: false,
+        status: UserStatus.typing(),
       ),
       _constructMockUser(
         name: 'Oybek',
         positionTitle: 'Support teacher',
-        isOnline: true,
+        status: UserStatus.lastSeenRecently(null),
       ),
       _constructMockUser(
         name: 'Jasur',
         positionTitle: 'Teacher',
-        isOnline: true,
+        status: UserStatus.online(),
       ),
       _constructMockUser(
         name: 'Sherzod',
         positionTitle: 'Support teacher',
-        isOnline: true,
+        status: UserStatus.lastSeenRecently(
+          DateTime.now().subtract(Duration(hours: 2)),
+        ),
       ),
       _constructMockUser(
         name: 'Jamshid',
         positionTitle: 'Teacher',
-        isOnline: true,
+        status: UserStatus.lastSeenRecently(
+          DateTime.now().subtract(Duration(minutes: 1)),
+        ),
       ),
       _constructMockUser(
         name: 'Xurshid',
         positionTitle: 'Teacher',
-        isOnline: true,
+        status: UserStatus.lastSeenRecently(
+          DateTime.now().subtract(Duration(minutes: 15)),
+        ),
       ),
-    ];
+    ]);
 
-    final others = _mockUsers.where((u) => u.id != _thisUser.id).toList();
+    final others = _mockUsers.value.where((u) => u.id != _thisUser.id).toList();
     final messages = others.map((other) {
       final data = ChatData(
         otherUserId: other.id,
@@ -64,49 +76,92 @@ mixin _StateHelper on State<ChatsListPage> {
       }
       return data;
     }).toList();
-    _mockChats.addAll(messages);
-    _mockChats.sort(
-      (a, b) => b.newMessages.length.compareTo(a.newMessages.length),
-    );
+    final temp = List.from([..._mockChats.value, ...messages]);
+    temp.sort((a, b) => b.newMessages.length.compareTo(a.newMessages.length));
+    _mockChats.value = List.from(temp);
   }
 
   List<ChatMessages> _constructMockMessages(UserData otherUser) {
     return [
       ChatMessages(
-        ownerId: _thisUser.id,
+        date: DateTime.now().subtract(const Duration(days: 2)),
         messages: [
-          'Hi ${otherUser.name}!',
-          'It\'s me, ${_thisUser.name}. How are you doing?',
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(const Duration(hours: 48)),
+            messages: 'Hi ${otherUser.name}!',
+          ),
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 47, minutes: 58),
+            ),
+            messages: 'It\'s me, ${_thisUser.name}. How are you doing?',
+          ),
         ],
       ),
       ChatMessages(
-        ownerId: otherUser.id,
+        date: DateTime.now().subtract(const Duration(days: 1)),
         messages: [
-          'Oh ${_thisUser.name}, how are you man? I\'m doing well btw',
+          ChatMessageData(
+            ownerId: otherUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 34),
+            ),
+            messages:
+                'Oh ${_thisUser.name}, how are you man? I\'m doing well btw',
+          ),
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 33),
+            ),
+            messages: 'Nice, I got some good news for you...',
+          ),
+          ChatMessageData(
+            ownerId: otherUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 32),
+            ),
+            messages: 'Really? Now you got me curious 👀',
+          ),
+          ChatMessageData(
+            ownerId: otherUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 32),
+            ),
+            messages: 'What happened?',
+          ),
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 28),
+            ),
+            messages: 'Haha, I\'d rather tell you in person.',
+          ),
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 27),
+            ),
+            messages:
+                'Let\'s catch up somewhere tomorrow, I\'ll share everything then.',
+          ),
+          ChatMessageData(
+            ownerId: otherUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 27),
+            ),
+            messages: 'Sounds good! Let\'s meet at our usual café',
+          ),
+          ChatMessageData(
+            ownerId: _thisUser.id,
+            sentAt: DateTime.now().subtract(
+              const Duration(hours: 23, minutes: 26),
+            ),
+            messages: 'Perfect, can’t wait to tell you!',
+          ),
         ],
-      ),
-      ChatMessages(
-        ownerId: _thisUser.id,
-        messages: ['Nice, I got some good news for you...'],
-      ),
-      ChatMessages(
-        ownerId: otherUser.id,
-        messages: ['Really? Now you got me curious 👀', 'What happened?'],
-      ),
-      ChatMessages(
-        ownerId: _thisUser.id,
-        messages: [
-          'Haha, I\'d rather tell you in person.',
-          'Let\'s catch up somewhere this weekend, I\'ll share everything then.',
-        ],
-      ),
-      ChatMessages(
-        ownerId: otherUser.id,
-        messages: ['Sounds good! Let\'s meet at our usual café'],
-      ),
-      ChatMessages(
-        ownerId: _thisUser.id,
-        messages: ['Perfect, can’t wait to tell you!'],
       ),
     ];
   }
@@ -115,21 +170,51 @@ mixin _StateHelper on State<ChatsListPage> {
     return _newMessagedUsersCount.isEven
         ? [
             ChatMessages(
-              ownerId: otherUser.id,
+              date: DateTime.now(),
               messages: [
-                'Saturday afternoon works?',
-                'I could use a break and some good company ☕️',
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(const Duration(hours: 2)),
+                  messages: 'Saturday afternoon works?',
+                ),
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(
+                    const Duration(hours: 1, minutes: 59),
+                  ),
+                  messages: 'I could use a break and some good company ☕️',
+                ),
               ],
             ),
           ]
         : [
             ChatMessages(
-              ownerId: otherUser.id,
+              date: DateTime.now(),
               messages: [
-                'By the way, do you still order that caramel latte every time? 😄',
-                'I’ll grab us a good table before you arrive!',
-                'Oh, and don’t be late this time 😅',
-                'I’m bringing something for you too, kind of a surprise 😉',
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(const Duration(hours: 2)),
+                  messages:
+                      'By the way, do you still order that caramel latte every time? 😄',
+                ),
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(
+                    const Duration(hours: 1, minutes: 59),
+                  ),
+                  messages: 'I’ll grab us a good table before you arrive!',
+                ),
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(const Duration(minutes: 2)),
+                  messages: 'Oh, and don’t be late this time 😅',
+                ),
+                ChatMessageData(
+                  ownerId: otherUser.id,
+                  sentAt: DateTime.now().subtract(const Duration(minutes: 2)),
+                  messages:
+                      'I’m bringing something for you too, kind of a surprise 😉',
+                ),
               ],
             ),
           ];
@@ -138,21 +223,21 @@ mixin _StateHelper on State<ChatsListPage> {
   UserData _constructMockUser({
     String? name,
     String? positionTitle,
-    bool? isOnline,
+    UserStatus? status,
   }) {
     _mockId += 1;
     _data ??= UserData(
       id: _mockId,
       name: 'Sardorbek Qosimov',
       positionTitle: 'Support teacher',
-      isOnline: true,
-      profileImage: "assets/images/mock_user_thumbnail.png",
+      status: UserStatus.online(),
+      profileImage: AppAssets.mockUserThumbnail,
     );
 
     return _data!.copyWith(
       id: _mockId,
       name: name,
-      isOnline: isOnline,
+      status: status,
       positionTitle: positionTitle,
     );
   }
@@ -161,10 +246,74 @@ mixin _StateHelper on State<ChatsListPage> {
     setState(() {});
   }
 
+  bool alterChatterStatus(UserData otherUser) {
+    final isChatterOnline =
+        _mockUsers.value.getPropertyOfFirstWhereOrNull(
+          (user) => user.id == otherUser.id,
+          getProperty: (user) => user.status.isOnline,
+        ) ??
+        false;
+    if (!isChatterOnline) return false;
+
+    final tempUsers = <UserData>[];
+    for (final user in _mockUsers.value) {
+      if (user.id == otherUser.id) {
+        user.status.when(
+          online: () {
+            tempUsers.add(user.copyWith(status: UserStatus.typing()));
+          },
+          typing: () {
+            tempUsers.add(user.copyWith(status: UserStatus.online()));
+          },
+          lastSeenRecently: (_) {
+            // Though this will never happen thanks to isChatterOnline
+            tempUsers.add(user);
+          },
+        );
+      } else {
+        tempUsers.add(user);
+      }
+    }
+    _mockUsers.value = List.from(tempUsers);
+    return true;
+  }
+
+  void sendMessage(
+    UserData otherUser,
+    String messages, {
+    bool isSentByThisUser = false,
+  }) {
+    final List<ChatData> _tempChats = [];
+    for (var chat in _mockChats.value) {
+      if (chat.otherUserId == otherUser.id) {
+        _tempChats.add(
+          chat.addNewMessages([
+            ChatMessages(
+              date: DateTime.now(),
+              messages: [
+                ChatMessageData(
+                  messages: messages,
+                  sentAt: DateTime.now(),
+                  ownerId: isSentByThisUser ? _thisUser.id : otherUser.id,
+                ),
+              ],
+            ),
+          ]),
+        );
+      } else {
+        _tempChats.add(chat);
+      }
+    }
+
+    _mockChats.value = List.from(_tempChats);
+  }
+
   @override
   void dispose() {
     super.dispose();
     _tabController.removeListener(listener);
     _tabController.dispose();
+    _mockChats.dispose();
+    _mockUsers.dispose();
   }
 }

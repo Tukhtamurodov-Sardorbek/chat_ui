@@ -8,25 +8,15 @@ class _MockBarView extends StatefulWidget {
 }
 
 class _MockBarViewState extends State<_MockBarView> {
-  late final ValueNotifier<List<ChatData>> _dataNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _dataNotifier = ValueNotifier([]);
-    Future.delayed(const Duration(milliseconds: 800), () {
-      _dataNotifier.value = MyInheritedWidget.of(context).mockChats;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final ref = ChatsListPage.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
       child: CustomScrollView(
         slivers: [
           ValueListenableBuilder(
-            valueListenable: _dataNotifier,
+            valueListenable: ref.mockChats,
             builder: (context, data, _) {
               if (data.isEmpty) {
                 return SliverFillRemaining(
@@ -38,14 +28,18 @@ class _MockBarViewState extends State<_MockBarView> {
                 child: SliverList.separated(
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    final chatterData = MyInheritedWidget.of(context).mockUsers
-                        .firstWhereOrNull(
+                    return ValueListenableBuilder(
+                      valueListenable: ref.mockUsers,
+                      builder: (context, value, child) {
+                        final chatterData = value.firstWhereOrNull(
                           (u) => u.id == data[index].otherUserId,
                         );
-                    if (chatterData == null) return SizedBox.shrink();
-                    return VerticalAnimationItemWrapper(
-                      position: index,
-                      child: ChatPreviewTile(chatterData: chatterData),
+                        if (chatterData == null) return SizedBox.shrink();
+                        return VerticalAnimationItemWrapper(
+                          position: index,
+                          child: ChatPreviewTile(chatterData: chatterData),
+                        );
+                      },
                     );
                   },
                   separatorBuilder: (context, index) {
@@ -58,11 +52,5 @@ class _MockBarViewState extends State<_MockBarView> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _dataNotifier.dispose();
-    super.dispose();
   }
 }

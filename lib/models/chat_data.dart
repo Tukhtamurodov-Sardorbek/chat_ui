@@ -23,12 +23,25 @@ class ChatData {
 
 @immutable
 class ChatMessages {
-  final int ownerId;
-  final List<String> messages;
+  final DateTime date;
+  final List<ChatMessageData> messages;
 
-  const ChatMessages({required this.ownerId, required this.messages});
+  const ChatMessages({required this.messages, required this.date});
 
-  ChatMessages copyWith({List<String>? messages}) {
-    return ChatMessages(ownerId: ownerId, messages: messages ?? this.messages);
+  ChatMessages copyWith({List<ChatMessageData>? messages}) {
+    return ChatMessages(date: date, messages: messages ?? this.messages);
   }
+}
+
+@immutable
+class ChatMessageData {
+  final int ownerId;
+  final DateTime sentAt;
+  final String messages;
+
+  const ChatMessageData({
+    required this.ownerId,
+    required this.sentAt,
+    required this.messages,
+  });
 }

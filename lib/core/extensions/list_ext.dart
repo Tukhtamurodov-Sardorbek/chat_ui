@@ -6,4 +6,15 @@ extension ListExtension<T> on List<T> {
     }
     return null;
   }
+
+  R? getPropertyOfFirstWhereOrNull<R>(
+    bool Function(T element) condition, {
+    required R Function(T element) getProperty,
+  }) {
+    if (isEmpty) return null;
+    for (final element in this) {
+      if (condition(element)) return getProperty(element);
+    }
+    return null;
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:chat_ui/core/assets/app_assets.dart';
 import 'package:chat_ui/pages/chats_list_page/component/list_tile/list_tile.dart';
 import 'package:chat_ui/core/extensions/list_ext.dart';
 import 'package:chat_ui/core/extensions/num_ext.dart';
@@ -18,6 +19,12 @@ class ChatsListPage extends StatefulWidget {
 
   @override
   State<ChatsListPage> createState() => _ChatsListPageState();
+
+  static _ChatsListPageState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_MyInheritedWidget>()!
+        .state;
+  }
 }
 
 class _ChatsListPageState extends State<ChatsListPage>
@@ -27,15 +34,15 @@ class _ChatsListPageState extends State<ChatsListPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this)
       ..addListener(listener);
-    _initMockData();
+    Future.delayed(const Duration(milliseconds: 800), () {
+      _initMockData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MyInheritedWidget(
-      thisUser: _thisUser,
-      mockUsers: _mockUsers,
-      mockChats: _mockChats,
+    return _MyInheritedWidget(
+      state: this,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: false,

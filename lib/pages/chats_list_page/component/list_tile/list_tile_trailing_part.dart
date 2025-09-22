@@ -5,8 +5,8 @@ class _TrailingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = MyInheritedWidget.of(context);
-    final chatData = ref.mockChats.firstWhereOrNull(
+    final ref = ChatsListPage.of(context);
+    final chatData = ref.mockChats.value.firstWhereOrNull(
       (chat) => chat.otherUserId == ChatPreviewTile.of(context).chatterData.id,
     );
     final hasNewMessages = chatData?.newMessages.isNotEmpty ?? false;
