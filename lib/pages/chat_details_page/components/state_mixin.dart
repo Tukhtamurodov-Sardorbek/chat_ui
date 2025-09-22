@@ -9,6 +9,13 @@ mixin _StateHelper on State<ChatDetailsPage> {
     super.initState();
     _scrollController = ScrollController();
     _textEditingController = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        chatController.readAll(widget.chatterData);
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   void _sendMessage() {
@@ -36,6 +43,7 @@ mixin _StateHelper on State<ChatDetailsPage> {
         if (context.mounted) {
           isChatterOnline = chatController.alterChatterStatus(
             widget.chatterData,
+            UserStatus.online(true),
           );
         }
       });
@@ -44,7 +52,10 @@ mixin _StateHelper on State<ChatDetailsPage> {
     // Simulate typing and response delay
     Timer(Duration(seconds: 2), () {
       if (context.mounted && isChatterOnline) {
-        chatController.alterChatterStatus(widget.chatterData);
+        chatController.alterChatterStatus(
+          widget.chatterData,
+          UserStatus.online(false),
+        );
         chatController.sendMessage(
           widget.chatterData,
           "Your friend's auto-generated reply",

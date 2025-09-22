@@ -37,43 +37,33 @@ class UserData {
 sealed class UserStatus {
   const UserStatus._();
 
-  const factory UserStatus.online() = _Online;
+  const factory UserStatus.online(bool typing) = _Online;
 
-  const factory UserStatus.typing() = _Typing;
+  const factory UserStatus.offline(DateTime? date) = _Offline;
 
-  const factory UserStatus.lastSeenRecently(DateTime? date) = _LastSeenRecently;
+  bool get isOnline => when(online: (_) => true, offline: (_) => false);
 
-  bool get isOnline => when(
-    online: () => true,
-    typing: () => true,
-    lastSeenRecently: (_) => false,
-  );
+  bool get isTyping => when(online: (typing) => typing, offline: (_) => false);
 
   T when<T>({
-    required T Function() online,
-    required T Function() typing,
-    required T Function(DateTime?) lastSeenRecently,
+    required T Function(bool) online,
+    required T Function(DateTime?) offline,
   }) {
     return switch (this) {
-      _Online() => online(),
-      _Typing() => typing(),
-      _LastSeenRecently(:final lastActiveSession) => lastSeenRecently(
-        lastActiveSession,
-      ),
+      _Online(:final isTyping) => online(isTyping),
+      _Offline(:final lastActiveSession) => offline(lastActiveSession),
     };
   }
 }
 
 final class _Online extends UserStatus {
-  const _Online() : super._();
+  final bool isTyping;
+
+  const _Online(this.isTyping) : super._();
 }
 
-final class _LastSeenRecently extends UserStatus {
+final class _Offline extends UserStatus {
   final DateTime? lastActiveSession;
 
-  const _LastSeenRecently(this.lastActiveSession) : super._();
-}
-
-final class _Typing extends UserStatus {
-  const _Typing() : super._();
+  const _Offline(this.lastActiveSession) : super._();
 }

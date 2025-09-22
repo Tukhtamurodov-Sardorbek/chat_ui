@@ -10,4 +10,6 @@ final class AppAssets {
   static const icSent = "$_baseIcons/ic_sent.png";
   static const icSentRead = "$_baseIcons/ic_sent_read.png";
   static const icTrash = "$_baseIcons/ic_trash.png";
+  static const icSendButton = "$_baseIcons/ic_send_btn.png";
+  static const icWarn = "$_baseIcons/ic_warn.png";
 }

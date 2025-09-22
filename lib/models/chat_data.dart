@@ -1,3 +1,4 @@
+import 'package:chat_ui/core/extensions/date_time_ext.dart';
 import 'package:chat_ui/pages/chats_list_page/chats_list_page.dart';
 import 'package:flutter/foundation.dart' show immutable;
 
@@ -13,11 +14,46 @@ class ChatData {
     this.newMessages = const [],
   });
 
-  ChatData addNewMessages(List<ChatMessages> newMessages) {
+  factory ChatData.empty(int otherUserId) {
+    return ChatData(otherUserId: otherUserId, messages: const []);
+  }
+
+  ChatData get readAll {
     return ChatData(
       otherUserId: otherUserId,
-      newMessages: newMessages,
-      messages: List.from([...messages, ...newMessages]),
+      messages: messages,
+      newMessages: [],
+    );
+  }
+
+  ChatData addNewMessages(
+    List<ChatMessages> newMessages, {
+    bool clearAfterMerge = true,
+  }) {
+    final updatedMessages = List<ChatMessages>.from(messages);
+
+    for (final newMsg in newMessages) {
+      final existingIndex = updatedMessages.indexWhere(
+        (m) => m.date.isSameDate(newMsg.date),
+      );
+
+      if (existingIndex != -1) {
+        final existing = updatedMessages[existingIndex];
+        updatedMessages[existingIndex] = ChatMessages(
+          date: existing.date,
+          messages: [...existing.messages, ...newMsg.messages],
+        );
+      } else {
+        updatedMessages.add(newMsg);
+      }
+    }
+
+    updatedMessages.sort((a, b) => a.date.compareTo(b.date));
+
+    return ChatData(
+      otherUserId: otherUserId,
+      messages: updatedMessages,
+      newMessages: clearAfterMerge ? [] : newMessages,
     );
   }
 }
@@ -39,6 +75,7 @@ class ChatMessageData {
   final int ownerId;
   final DateTime sentAt;
   final String message;
+  final bool isRead;
 
   bool get isSentByThisUser => ownerId == chatController.thisUser.id;
 
@@ -46,5 +83,6 @@ class ChatMessageData {
     required this.ownerId,
     required this.sentAt,
     required this.message,
+    this.isRead = true,
   });
 }

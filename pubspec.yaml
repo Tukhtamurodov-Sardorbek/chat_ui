@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   sliver_tools: ^0.2.12
   value_layout_builder: ^0.5.0
+  simple_animations: ^5.2.0
   flutter_staggered_animations: ^1.1.1
 
 dev_dependencies:

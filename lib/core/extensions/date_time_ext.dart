@@ -1,3 +1,5 @@
+enum DateTimeParam { dateMonthYear, monthYear, year }
+
 extension DateTimeExt on DateTime {
   String get formatDate {
     const months = [
@@ -16,6 +18,24 @@ extension DateTimeExt on DateTime {
     ];
 
     return '$day ${months[month - 1]}, $year';
+  }
+
+  bool isSameDate(
+    DateTime other, {
+    DateTimeParam param = DateTimeParam.dateMonthYear,
+  }) {
+    switch (param) {
+      case DateTimeParam.dateMonthYear:
+        return day == other.day && month == other.month && year == other.year;
+      case DateTimeParam.monthYear:
+        return month == other.month && year == other.year;
+      case DateTimeParam.year:
+        return year == other.year;
+    }
+  }
+
+  String get formatSentTime {
+    return "${hour < 10 ? '0$hour' : hour}:${minute < 10 ? '0$minute' : minute}";
   }
 }
 
