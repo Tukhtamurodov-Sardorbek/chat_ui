@@ -39,11 +39,58 @@ class _SliverStickyHeaderView extends StatelessWidget {
         );
       },
       sliver: SliverPadding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            return SizedBox();
-          }, childCount: chatMessages.messages.length),
+        padding: EdgeInsets.all(16),
+        sliver: AnimationLimiter(
+          child: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final isSentByThisUser =
+                  chatMessages.messages[index].isSentByThisUser;
+              bool isNextMsgOwnerDifferent = false;
+              if (index + 1 != chatMessages.messages.length) {
+                isNextMsgOwnerDifferent =
+                    isSentByThisUser !=
+                    chatMessages.messages[index + 1].isSentByThisUser;
+              }
+              return Align(
+                alignment: isSentByThisUser
+                    ? Alignment.centerRight
+                    : AlignmentGeometry.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: 4.0 + (isNextMsgOwnerDifferent ? 8 : 0),
+                  ),
+                  child: VerticalAnimationItemWrapper(
+                    position: index,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                          bottomLeft: isSentByThisUser
+                              ? Radius.circular(16)
+                              : Radius.zero,
+                          bottomRight: isSentByThisUser
+                              ? Radius.zero
+                              : Radius.circular(16),
+                        ),
+                        color: isSentByThisUser
+                            ? Color(0xFFE94F11)
+                            : Colors.white,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          chatMessages.messages[index].message,
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }, childCount: chatMessages.messages.length),
+          ),
         ),
       ),
     );

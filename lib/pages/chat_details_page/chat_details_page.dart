@@ -7,6 +7,7 @@ import 'package:chat_ui/core/extensions/num_ext.dart';
 import 'package:chat_ui/core/extensions/string_ext.dart';
 import 'package:chat_ui/core/widgets/circular_user_profile_image.dart';
 import 'package:chat_ui/core/widgets/sticky_header/widget.dart';
+import 'package:chat_ui/core/widgets/vertical_animation_item_wrapper.dart';
 import 'package:chat_ui/models/chat_data.dart';
 import 'package:chat_ui/models/user_data.dart';
 import 'package:chat_ui/pages/chats_list_page/chats_list_page.dart';
@@ -27,30 +28,40 @@ class ChatDetailsPage extends StatefulWidget {
   @override
   State<ChatDetailsPage> createState() => _ChatDetailsPageState();
 
-  // Static method to access the state from descendant widgets
-  static _ChatDetailsPageState of(BuildContext context) {
-    final state = context.findAncestorStateOfType<_ChatDetailsPageState>();
-    assert(
-      state != null,
-      'No ChatDetailsPage ancestor found in the widget tree',
-    );
-    return state!;
-  }
+  // // Static method to access the state from descendant widgets
+  // static _ChatDetailsPageState of(BuildContext context) {
+  //   final state = context.findAncestorStateOfType<_ChatDetailsPageState>();
+  //   assert(
+  //     state != null,
+  //     'No ChatDetailsPage ancestor found in the widget tree',
+  //   );
+  //   return state!;
+  // }
 }
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> with _StateHelper {
   @override
   Widget build(BuildContext context) {
-    final ref = ChatsListPage.of(context);
     return Scaffold(
-      appBar: _AppBar(context),
+      appBar: _AppBar(
+        context,
+        image: widget.chatterData.profileImage,
+        isOnline: widget.chatterData.status.isOnline,
+        name: widget.chatterData.name,
+        status: widget.chatterData.status.when(
+          online: () => 'Online',
+          typing: () => 'Typing message...',
+          lastSeenRecently: (date) => date.formatLastSeen,
+        ),
+      ),
       body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
         controller: _scrollController,
         slivers: [
-          ValueListenableBuilder(
-            valueListenable: ref.mockChats,
-            builder: (context, chats, child) {
-              final thisChat = chats.firstWhereOrNull(
+          AnimatedBuilder(
+            animation: chatController,
+            builder: (context, _) {
+              final thisChat = chatController.chats.firstWhereOrNull(
                 (ch) => ch.otherUserId == widget.chatterData.id,
               );
               if (thisChat == null) {

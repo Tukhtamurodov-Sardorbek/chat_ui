@@ -1,3 +1,4 @@
+import 'package:chat_ui/pages/chats_list_page/chats_list_page.dart';
 import 'package:flutter/foundation.dart' show immutable;
 
 @immutable
@@ -37,11 +38,13 @@ class ChatMessages {
 class ChatMessageData {
   final int ownerId;
   final DateTime sentAt;
-  final String messages;
+  final String message;
+
+  bool get isSentByThisUser => ownerId == chatController.thisUser.id;
 
   const ChatMessageData({
     required this.ownerId,
     required this.sentAt,
-    required this.messages,
+    required this.message,
   });
 }

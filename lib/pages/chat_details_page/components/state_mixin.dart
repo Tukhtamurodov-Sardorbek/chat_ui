@@ -12,12 +12,15 @@ mixin _StateHelper on State<ChatDetailsPage> {
   }
 
   void _sendMessage() {
-    final ref = ChatsListPage.of(context);
     bool isChatterOnline = false;
     String message = _textEditingController.text.trim();
     if (message.isEmpty) return;
 
-    ref.sendMessage(widget.chatterData, message, isSentByThisUser: true);
+    chatController.sendMessage(
+      widget.chatterData,
+      message,
+      isSentByThisUser: true,
+    );
 
     _textEditingController.clear();
 
@@ -31,7 +34,9 @@ mixin _StateHelper on State<ChatDetailsPage> {
       }
       Future.delayed(const Duration(milliseconds: 400), () {
         if (context.mounted) {
-          isChatterOnline = ref.alterChatterStatus(widget.chatterData);
+          isChatterOnline = chatController.alterChatterStatus(
+            widget.chatterData,
+          );
         }
       });
     });
@@ -39,8 +44,8 @@ mixin _StateHelper on State<ChatDetailsPage> {
     // Simulate typing and response delay
     Timer(Duration(seconds: 2), () {
       if (context.mounted && isChatterOnline) {
-        ref.alterChatterStatus(widget.chatterData);
-        ref.sendMessage(
+        chatController.alterChatterStatus(widget.chatterData);
+        chatController.sendMessage(
           widget.chatterData,
           "Your friend's auto-generated reply",
         );

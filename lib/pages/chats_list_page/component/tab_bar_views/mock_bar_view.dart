@@ -7,18 +7,22 @@ class _MockBarView extends StatefulWidget {
   State<_MockBarView> createState() => _MockBarViewState();
 }
 
-class _MockBarViewState extends State<_MockBarView> {
+class _MockBarViewState extends State<_MockBarView>{
+    // with AutomaticKeepAliveClientMixin {
+  // @override
+  // bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
-    final ref = ChatsListPage.of(context);
+    // super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
       child: CustomScrollView(
         slivers: [
-          ValueListenableBuilder(
-            valueListenable: ref.mockChats,
-            builder: (context, data, _) {
-              if (data.isEmpty) {
+          AnimatedBuilder(
+            animation: chatController,
+            builder: (context, _) {
+              if (chatController.chats.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: CircularProgressIndicator()),
@@ -26,20 +30,15 @@ class _MockBarViewState extends State<_MockBarView> {
               }
               return AnimationLimiter(
                 child: SliverList.separated(
-                  itemCount: data.length,
+                  itemCount: chatController.chats.length,
                   itemBuilder: (context, index) {
-                    return ValueListenableBuilder(
-                      valueListenable: ref.mockUsers,
-                      builder: (context, value, child) {
-                        final chatterData = value.firstWhereOrNull(
-                          (u) => u.id == data[index].otherUserId,
-                        );
-                        if (chatterData == null) return SizedBox.shrink();
-                        return VerticalAnimationItemWrapper(
-                          position: index,
-                          child: ChatPreviewTile(chatterData: chatterData),
-                        );
-                      },
+                    final chatterData = chatController.users.firstWhereOrNull(
+                      (u) => u.id == chatController.chats[index].otherUserId,
+                    );
+                    if (chatterData == null) return SizedBox.shrink();
+                    return VerticalAnimationItemWrapper(
+                      position: index,
+                      child: ChatPreviewTile(chatterData: chatterData),
                     );
                   },
                   separatorBuilder: (context, index) {
