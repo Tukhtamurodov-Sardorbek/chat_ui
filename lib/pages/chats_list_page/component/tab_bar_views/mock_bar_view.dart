@@ -7,8 +7,8 @@ class _MockBarView extends StatefulWidget {
   State<_MockBarView> createState() => _MockBarViewState();
 }
 
-class _MockBarViewState extends State<_MockBarView>{
-    // with AutomaticKeepAliveClientMixin {
+class _MockBarViewState extends State<_MockBarView> {
+  // with AutomaticKeepAliveClientMixin {
   // @override
   // bool get wantKeepAlive => true;
 
